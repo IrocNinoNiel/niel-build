@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(php artisan:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build)",
+      "Bash(del \"D:\\Source\\laravel\\niel-build\\app\\Models\\Category.php\")"
+    ]
+  }
+}

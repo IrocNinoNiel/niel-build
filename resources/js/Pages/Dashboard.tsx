@@ -2,6 +2,7 @@ import { useState, SyntheticEvent } from 'react';
 import { Head } from '@inertiajs/react';
 import PortfolioLayout from '@/Layouts/PortfolioLayout';
 import TaskManager from '@/Components/Portfolio/TaskManager';
+import SpendingTracker from '@/Components/Spending/SpendingTracker';
 import {
     Box,
     Tabs,
@@ -14,6 +15,7 @@ import {
 } from '@mui/material';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -104,14 +106,15 @@ export default function Dashboard() {
                         </Card>
                     </Grid>
                     <Grid item xs={12} md={4}>
-                        <Card sx={{ height: '100%', opacity: 0.6 }}>
+                        <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => { setHeaderTab(0); setSubTab(1); }}>
                             <CardContent>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                    <CodeIcon color="disabled" sx={{ mr: 1 }} />
-                                    <Typography variant="h6" color="textSecondary">Coming Soon</Typography>
+                                    <AccountBalanceWalletIcon color="primary" sx={{ mr: 1 }} />
+                                    <Typography variant="h6">Spending Tracker</Typography>
                                 </Box>
                                 <Typography variant="body2" color="textSecondary">
-                                    More exciting React projects will be added here. Stay tuned!
+                                    Track your income and expenses with interactive charts,
+                                    category breakdown, and auto-calculated balance.
                                 </Typography>
                             </CardContent>
                         </Card>
@@ -170,13 +173,21 @@ export default function Dashboard() {
                                     iconPosition="start"
                                     label="Task Manager"
                                 />
+                                <Tab
+                                    icon={<AccountBalanceWalletIcon />}
+                                    iconPosition="start"
+                                    label="Spending Tracker"
+                                />
                             </Tabs>
                         </Box>
 
-                        {/* Task Manager Sub Tab */}
+                        {/* Sub Tab Panels */}
                         <Box sx={{ p: 2 }}>
                             <SubTabPanel value={subTab} index={0}>
                                 <TaskManager />
+                            </SubTabPanel>
+                            <SubTabPanel value={subTab} index={1}>
+                                <SpendingTracker />
                             </SubTabPanel>
                         </Box>
                     </TabPanel>

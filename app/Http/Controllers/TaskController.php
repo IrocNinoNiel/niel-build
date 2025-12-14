@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use Illuminate\Http\Request;
 
@@ -9,7 +10,8 @@ class TaskController extends Controller
 {
     public function index()
     {
-        return Task::orderBy('created_at', 'desc')->get();
+        $tasks = Task::with('project')->orderBy('created_at', 'desc')->get();
+        return TaskResource::collection($tasks);
     }
 
     public function store(Request $request)
@@ -20,14 +22,18 @@ class TaskController extends Controller
             'status' => 'in:pending,in_progress,completed',
             'priority' => 'in:low,medium,high',
             'due_date' => 'nullable|date',
+            'project_id' => 'required|exists:projects,id',
         ]);
 
-        return Task::create($validated);
+        $task = Task::create($validated);
+        $task->load('project');
+        return new TaskResource($task);
     }
 
     public function show(Task $task)
     {
-        return $task;
+        $task->load('project');
+        return new TaskResource($task);
     }
 
     public function update(Request $request, Task $task)
@@ -38,10 +44,12 @@ class TaskController extends Controller
             'status' => 'in:pending,in_progress,completed',
             'priority' => 'in:low,medium,high',
             'due_date' => 'nullable|date',
+            'project_id' => 'sometimes|required|exists:projects,id',
         ]);
 
         $task->update($validated);
-        return $task;
+        $task->load('project');
+        return new TaskResource($task);
     }
 
     public function destroy(Task $task)
