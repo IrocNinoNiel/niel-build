@@ -24,7 +24,8 @@ class SpendingTransactionController extends Controller
             $query->where('type', $request->type);
         }
 
-        $transactions = $query->orderBy('transaction_date', 'desc')->get();
+        $perPage = $request->get('per_page', 10);
+        $transactions = $query->orderBy('transaction_date', 'desc')->paginate($perPage);
         return SpendingTransactionResource::collection($transactions);
     }
 

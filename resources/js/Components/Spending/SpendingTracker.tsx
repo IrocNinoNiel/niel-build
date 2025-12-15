@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import {
     Box, Typography, Button, Card, CardContent, Grid, Dialog, DialogTitle, DialogContent, DialogActions,
     TextField, FormControl, InputLabel, Select, MenuItem, List, ListItem, ListItemText, IconButton,
-    Chip, LinearProgress
+    Chip, LinearProgress, Pagination, Stack
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -11,10 +11,15 @@ import { SpendingCategory, SpendingTransaction } from '@/types';
 
 export default function SpendingTracker() {
     const [transactions, setTransactions] = useState<SpendingTransaction[]>([]);
+    const [allTransactions, setAllTransactions] = useState<SpendingTransaction[]>([]);
     const [categories, setCategories] = useState<SpendingCategory[]>([]);
     const [loading, setLoading] = useState(true);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editingTransaction, setEditingTransaction] = useState<SpendingTransaction | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [perPage, setPerPage] = useState(10);
+    const [total, setTotal] = useState(0);
     const [formData, setFormData] = useState({
         category_id: 0,
         type: 'expense' as 'income' | 'expense',
@@ -25,8 +30,12 @@ export default function SpendingTracker() {
 
     useEffect(() => {
         fetchCategories();
-        fetchTransactions();
+        fetchAllTransactions();
     }, []);
+
+    useEffect(() => {
+        fetchTransactions();
+    }, [currentPage, perPage]);
 
     const fetchCategories = async () => {
         try {
@@ -38,10 +47,35 @@ export default function SpendingTracker() {
         }
     };
 
+    const fetchAllTransactions = async () => {
+        try {
+            const response = await axios.get('/api/spending-transactions', {
+                params: { per_page: 1000 }
+            });
+            setAllTransactions(Array.isArray(response.data) ? response.data : response.data.data || []);
+        } catch (error) {
+            console.error('Error fetching all transactions:', error);
+            setAllTransactions([]);
+        }
+    };
+
     const fetchTransactions = async () => {
         try {
-            const response = await axios.get('/api/spending-transactions');
-            setTransactions(Array.isArray(response.data) ? response.data : response.data.data || []);
+            const response = await axios.get('/api/spending-transactions', {
+                params: {
+                    page: currentPage,
+                    per_page: perPage
+                }
+            });
+
+            if (response.data.data) {
+                setTransactions(response.data.data);
+                setCurrentPage(response.data.current_page || 1);
+                setTotalPages(response.data.last_page || 1);
+                setTotal(response.data.total || 0);
+            } else {
+                setTransactions(Array.isArray(response.data) ? response.data : []);
+            }
         } catch (error) {
             console.error('Error fetching transactions:', error);
             setTransactions([]);
@@ -86,6 +120,7 @@ export default function SpendingTracker() {
                 await axios.post('/api/spending-transactions', data);
             }
             fetchTransactions();
+            fetchAllTransactions();
             setDialogOpen(false);
         } catch (error) {
             console.error('Error saving transaction:', error);
@@ -98,18 +133,28 @@ export default function SpendingTracker() {
             try {
                 await axios.delete(`/api/spending-transactions/${id}`);
                 fetchTransactions();
+                fetchAllTransactions();
             } catch (error) {
                 console.error('Error deleting transaction:', error);
             }
         }
     };
 
+    const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+        setCurrentPage(value);
+    };
+
+    const handlePerPageChange = (event: any) => {
+        setPerPage(parseInt(event.target.value));
+        setCurrentPage(1);
+    };
+
     const stats = useMemo(() => {
-        const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-        const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+        const totalIncome = allTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const totalExpense = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
         const balance = totalIncome - totalExpense;
         return { totalIncome, totalExpense, balance, netSavings: balance };
-    }, [transactions]);
+    }, [allTransactions]);
 
     const dailyData = useMemo(() => {
         const last30Days: { [key: string]: { income: number; expense: number } } = {};
@@ -122,7 +167,7 @@ export default function SpendingTracker() {
             last30Days[dateStr] = { income: 0, expense: 0 };
         }
 
-        transactions.forEach(t => {
+        allTransactions.forEach(t => {
             if (last30Days[t.transaction_date]) {
                 last30Days[t.transaction_date][t.type] += t.amount;
             }
@@ -133,11 +178,11 @@ export default function SpendingTracker() {
             income: data.income,
             expense: data.expense,
         }));
-    }, [transactions]);
+    }, [allTransactions]);
 
     const categoryData = useMemo(() => {
         const expensesByCategory: { [key: number]: number } = {};
-        transactions.filter(t => t.type === 'expense').forEach(t => {
+        allTransactions.filter(t => t.type === 'expense').forEach(t => {
             expensesByCategory[t.category_id] = (expensesByCategory[t.category_id] || 0) + t.amount;
         });
 
@@ -149,7 +194,7 @@ export default function SpendingTracker() {
                 color: category?.color || '#999999',
             };
         }).sort((a, b) => b.amount - a.amount);
-    }, [transactions, categories]);
+    }, [allTransactions, categories]);
 
     const incomeExpenseCategories = categories.filter(c => c.type === 'income' || c.type === 'expense');
     const selectedCategory = categories.find(c => c.id === formData.category_id);
@@ -244,9 +289,19 @@ export default function SpendingTracker() {
                 <Grid item xs={12} md={6}>
                     <Card>
                         <CardContent>
-                            <Typography variant="h6" gutterBottom>Recent Transactions</Typography>
-                            <List sx={{ maxHeight: 300, overflow: 'auto' }}>
-                                {transactions.slice(0, 10).map((transaction) => (
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                <Typography variant="h6">All Transactions ({total})</Typography>
+                                <FormControl size="small" sx={{ minWidth: 100 }}>
+                                    <Select value={perPage} onChange={handlePerPageChange}>
+                                        <MenuItem value={5}>5 per page</MenuItem>
+                                        <MenuItem value={10}>10 per page</MenuItem>
+                                        <MenuItem value={25}>25 per page</MenuItem>
+                                        <MenuItem value={50}>50 per page</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Box>
+                            <List sx={{ maxHeight: 400, overflow: 'auto' }}>
+                                {transactions.map((transaction) => (
                                     <ListItem
                                         key={transaction.id}
                                         secondaryAction={
@@ -287,6 +342,18 @@ export default function SpendingTracker() {
                                     </ListItem>
                                 ))}
                             </List>
+                            {totalPages > 1 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                                    <Pagination
+                                        count={totalPages}
+                                        page={currentPage}
+                                        onChange={handlePageChange}
+                                        color="primary"
+                                        showFirstButton
+                                        showLastButton
+                                    />
+                                </Box>
+                            )}
                         </CardContent>
                     </Card>
                 </Grid>

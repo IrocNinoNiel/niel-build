@@ -27,7 +27,7 @@ Route::get('/dashboard', function () {
 Route::prefix('api')->group(function () {
     Route::apiResource('projects', ProjectController::class);
     Route::apiResource('tasks', TaskController::class);
-    Route::apiResource('spending-categories', SpendingCategoryController::class)->only(['index']);
+    Route::apiResource('spending-categories', SpendingCategoryController::class);
     Route::apiResource('spending-transactions', SpendingTransactionController::class);
 });
 

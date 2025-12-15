@@ -3,6 +3,7 @@ import { Head } from '@inertiajs/react';
 import PortfolioLayout from '@/Layouts/PortfolioLayout';
 import TaskManager from '@/Components/Portfolio/TaskManager';
 import SpendingTracker from '@/Components/Spending/SpendingTracker';
+import CategoryManager from '@/Components/Spending/CategoryManager';
 import {
     Box,
     Tabs,
@@ -16,6 +17,7 @@ import {
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import CategoryIcon from '@mui/icons-material/Category';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -120,14 +122,15 @@ export default function Dashboard() {
                         </Card>
                     </Grid>
                     <Grid item xs={12} md={4}>
-                        <Card sx={{ height: '100%', opacity: 0.6 }}>
+                        <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => { setHeaderTab(0); setSubTab(2); }}>
                             <CardContent>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                    <CodeIcon color="disabled" sx={{ mr: 1 }} />
-                                    <Typography variant="h6" color="textSecondary">Coming Soon</Typography>
+                                    <CategoryIcon color="primary" sx={{ mr: 1 }} />
+                                    <Typography variant="h6">Category Manager</Typography>
                                 </Box>
                                 <Typography variant="body2" color="textSecondary">
-                                    More exciting React projects will be added here. Stay tuned!
+                                    Manage your income and expense categories with custom icons,
+                                    colors, and organize your financial tracking.
                                 </Typography>
                             </CardContent>
                         </Card>
@@ -178,6 +181,11 @@ export default function Dashboard() {
                                     iconPosition="start"
                                     label="Spending Tracker"
                                 />
+                                <Tab
+                                    icon={<CategoryIcon />}
+                                    iconPosition="start"
+                                    label="Category Manager"
+                                />
                             </Tabs>
                         </Box>
 
@@ -188,6 +196,9 @@ export default function Dashboard() {
                             </SubTabPanel>
                             <SubTabPanel value={subTab} index={1}>
                                 <SpendingTracker />
+                            </SubTabPanel>
+                            <SubTabPanel value={subTab} index={2}>
+                                <CategoryManager />
                             </SubTabPanel>
                         </Box>
                     </TabPanel>

@@ -19,6 +19,7 @@ import {
     LinearProgress,
     useMediaQuery,
     useTheme,
+    Pagination,
 } from '@mui/material';
 import { Add as AddIcon, Menu as MenuIcon } from '@mui/icons-material';
 import axios from 'axios';
@@ -32,6 +33,17 @@ export default function TaskManager() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+
+    // Pagination state for projects
+    const [projectsPage, setProjectsPage] = useState(1);
+    const [projectsTotalPages, setProjectsTotalPages] = useState(1);
+    const [projectsPerPage] = useState(100); // Large number for sidebar
+
+    // Pagination state for tasks
+    const [tasksPage, setTasksPage] = useState(1);
+    const [tasksTotalPages, setTasksTotalPages] = useState(1);
+    const [tasksPerPage] = useState(100); // Get all tasks for Kanban view
+    const [tasksTotal, setTasksTotal] = useState(0);
 
     // Task Dialog State
     const [taskDialogOpen, setTaskDialogOpen] = useState(false);
@@ -68,9 +80,19 @@ export default function TaskManager() {
 
     const fetchProjects = async () => {
         try {
-            const response = await axios.get('/api/projects');
-            // Laravel API Resources wrap collections in a 'data' property
-            setProjects(Array.isArray(response.data) ? response.data : response.data.data || []);
+            const response = await axios.get('/api/projects', {
+                params: {
+                    page: projectsPage,
+                    per_page: projectsPerPage
+                }
+            });
+
+            if (response.data.data) {
+                setProjects(response.data.data);
+                setProjectsTotalPages(response.data.last_page || 1);
+            } else {
+                setProjects(Array.isArray(response.data) ? response.data : []);
+            }
         } catch (error) {
             console.error('Error fetching projects:', error);
             setProjects([]);
@@ -79,9 +101,21 @@ export default function TaskManager() {
 
     const fetchTasks = async () => {
         try {
-            const response = await axios.get('/api/tasks');
-            // Laravel API Resources wrap collections in a 'data' property
-            setTasks(Array.isArray(response.data) ? response.data : response.data.data || []);
+            const response = await axios.get('/api/tasks', {
+                params: {
+                    page: tasksPage,
+                    per_page: tasksPerPage
+                }
+            });
+
+            if (response.data.data) {
+                setTasks(response.data.data);
+                setTasksPage(response.data.current_page || 1);
+                setTasksTotalPages(response.data.last_page || 1);
+                setTasksTotal(response.data.total || 0);
+            } else {
+                setTasks(Array.isArray(response.data) ? response.data : []);
+            }
         } catch (error) {
             console.error('Error fetching tasks:', error);
             setTasks([]);

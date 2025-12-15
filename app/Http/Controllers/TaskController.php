@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = Task::with('project')->orderBy('created_at', 'desc')->get();
+        $perPage = $request->get('per_page', 10);
+        $tasks = Task::with('project')->orderBy('created_at', 'desc')->paginate($perPage);
         return TaskResource::collection($tasks);
     }
 

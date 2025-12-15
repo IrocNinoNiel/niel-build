@@ -11,14 +11,15 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->get('per_page', 10);
         $projects = Project::withCount([
             'tasks',
             'tasks as completed_tasks_count' => function ($query) {
                 $query->where('status', 'completed');
             }
-        ])->orderBy('created_at', 'desc')->get();
+        ])->orderBy('created_at', 'desc')->paginate($perPage);
         return ProjectResource::collection($projects);
     }
 
