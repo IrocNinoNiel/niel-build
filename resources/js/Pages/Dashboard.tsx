@@ -4,6 +4,7 @@ import PortfolioLayout from '@/Layouts/PortfolioLayout';
 import TaskManager from '@/Components/Portfolio/TaskManager';
 import SpendingTracker from '@/Components/Spending/SpendingTracker';
 import CategoryManager from '@/Components/Spending/CategoryManager';
+import JobApplicationTracker from '@/Components/JobTracker/JobApplicationTracker';
 import {
     Box,
     Tabs,
@@ -18,6 +19,7 @@ import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CategoryIcon from '@mui/icons-material/Category';
+import WorkIcon from '@mui/icons-material/Work';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -93,7 +95,7 @@ export default function Dashboard() {
 
                 {/* Project Preview Cards */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={6} lg={3}>
                         <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => { setHeaderTab(0); setSubTab(0); }}>
                             <CardContent>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -107,7 +109,7 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={6} lg={3}>
                         <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => { setHeaderTab(0); setSubTab(1); }}>
                             <CardContent>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -121,7 +123,7 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={6} lg={3}>
                         <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => { setHeaderTab(0); setSubTab(2); }}>
                             <CardContent>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -131,6 +133,20 @@ export default function Dashboard() {
                                 <Typography variant="body2" color="textSecondary">
                                     Manage your income and expense categories with custom icons,
                                     colors, and organize your financial tracking.
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={3}>
+                        <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => { setHeaderTab(0); setSubTab(3); }}>
+                            <CardContent>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                    <WorkIcon color="primary" sx={{ mr: 1 }} />
+                                    <Typography variant="h6">Job Application Tracker</Typography>
+                                </Box>
+                                <Typography variant="body2" color="textSecondary">
+                                    Track your job applications with Kanban board, manage companies,
+                                    interviews, and follow-ups all in one place.
                                 </Typography>
                             </CardContent>
                         </Card>
@@ -186,6 +202,11 @@ export default function Dashboard() {
                                     iconPosition="start"
                                     label="Category Manager"
                                 />
+                                <Tab
+                                    icon={<WorkIcon />}
+                                    iconPosition="start"
+                                    label="Job Tracker"
+                                />
                             </Tabs>
                         </Box>
 
@@ -199,6 +220,9 @@ export default function Dashboard() {
                             </SubTabPanel>
                             <SubTabPanel value={subTab} index={2}>
                                 <CategoryManager />
+                            </SubTabPanel>
+                            <SubTabPanel value={subTab} index={3}>
+                                <JobApplicationTracker />
                             </SubTabPanel>
                         </Box>
                     </TabPanel>
