@@ -146,6 +146,89 @@ export interface ApplicationReminder {
     updated_at: string;
 }
 
+export interface Workspace {
+    id: number;
+    uuid: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    avatar_url: string | null;
+    is_active: boolean;
+    owner?: UserSimple;
+    members_count?: number;
+    channels_count?: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface UserSimple {
+    id: number;
+    name: string;
+    email: string;
+    avatar_url?: string | null;
+}
+
+export interface WorkspaceMember {
+    id: number;
+    user: UserSimple;
+    workspace_id: number;
+    role: 'owner' | 'admin' | 'member' | 'guest';
+    joined_at: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Channel {
+    id: number;
+    workspace_id: number;
+    name: string;
+    description: string | null;
+    type: 'public' | 'private' | 'direct' | 'announcement';
+    is_archived: boolean;
+    created_by?: UserSimple;
+    members_count?: number;
+    unread_count?: number;
+    last_message?: Message;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Message {
+    id: number;
+    channel_id: number;
+    user_id: number;
+    user?: UserSimple;
+    content: string;
+    message_type: 'text' | 'file' | 'system';
+    parent_id: number | null;
+    is_pinned: boolean;
+    edited_at: string | null;
+    attachments?: MessageAttachment[];
+    reactions?: MessageReaction[];
+    thread_count?: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface MessageAttachment {
+    id: number;
+    message_id: number;
+    file_name: string;
+    file_path: string;
+    file_type: string;
+    file_size: number;
+    created_at: string;
+}
+
+export interface MessageReaction {
+    id: number;
+    message_id: number;
+    user_id: number;
+    user?: UserSimple;
+    emoji: string;
+    created_at: string;
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {

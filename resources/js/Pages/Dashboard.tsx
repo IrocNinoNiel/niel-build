@@ -5,6 +5,7 @@ import TaskManager from '@/Components/Portfolio/TaskManager';
 import SpendingTracker from '@/Components/Spending/SpendingTracker';
 import CategoryManager from '@/Components/Spending/CategoryManager';
 import JobApplicationTracker from '@/Components/JobTracker/JobApplicationTracker';
+import WorkspaceManager from '@/Components/Workspace/WorkspaceManager';
 import {
     Box,
     Tabs,
@@ -20,6 +21,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CategoryIcon from '@mui/icons-material/Category';
 import WorkIcon from '@mui/icons-material/Work';
+import GroupWorkIcon from '@mui/icons-material/GroupWork';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -151,6 +153,20 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
                     </Grid>
+                    <Grid item xs={12} md={6} lg={3}>
+                        <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => { setHeaderTab(0); setSubTab(4); }}>
+                            <CardContent>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                    <GroupWorkIcon color="primary" sx={{ mr: 1 }} />
+                                    <Typography variant="h6">Workspace Collaboration</Typography>
+                                </Box>
+                                <Typography variant="body2" color="textSecondary">
+                                    Collaborate with your team using workspaces, channels, real-time messaging,
+                                    and member management.
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
                 </Grid>
 
                 {/* Main Tabs Section */}
@@ -207,6 +223,11 @@ export default function Dashboard() {
                                     iconPosition="start"
                                     label="Job Tracker"
                                 />
+                                <Tab
+                                    icon={<GroupWorkIcon />}
+                                    iconPosition="start"
+                                    label="Workspace"
+                                />
                             </Tabs>
                         </Box>
 
@@ -223,6 +244,9 @@ export default function Dashboard() {
                             </SubTabPanel>
                             <SubTabPanel value={subTab} index={3}>
                                 <JobApplicationTracker />
+                            </SubTabPanel>
+                            <SubTabPanel value={subTab} index={4}>
+                                <WorkspaceManager />
                             </SubTabPanel>
                         </Box>
                     </TabPanel>
